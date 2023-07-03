@@ -1,0 +1,156 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Estrutura para armazenar os dados do produto
+typedef struct {
+    int codigo;
+    char descricao[50];
+    int quantidade;
+    float valor;
+} Produto;
+
+// Função que inicializa uma lista vazia
+void inicializarLista(Produto** lista, int* tamanho) {
+    *lista = NULL;
+    *tamanho = 0;
+}
+
+// Função que adiciona um novo produto à lista de estoque
+void adicionarProduto(Produto** lista, int* tamanho) {
+    Produto produto;
+    
+    printf("Código: ");
+    scanf("%d", &produto.codigo);
+    
+    printf("Descrição: ");
+    scanf(" %[^\n]s", produto.descricao);
+    
+    printf("Quantidade: ");
+    scanf("%d", &produto.quantidade);
+    
+    printf("Valor: ");
+    scanf("%f", &produto.valor);
+    
+    // Redimensiona a lista para acomodar o novo produto
+    *lista = realloc(*lista, (*tamanho + 1) * sizeof(Produto));
+    
+    // Adiciona o novo produto na última posição
+    (*lista)[*tamanho] = produto;
+    (*tamanho)++;
+    
+    printf("Produto cadastrado com sucesso!\n");
+}
+
+// Função que percorre a lista de estoque e imprime um relatório com as informações de cada produto
+void gerarRelatorio(Produto* lista, int tamanho) {
+    printf("Relatório de produtos:\n");
+    printf("----------------------\n");
+    
+    for (int i = 0; i < tamanho; i++) {
+        printf("Código: %d\n", lista[i].codigo);
+        printf("Descrição: %s\n", lista[i].descricao);
+        printf("Quantidade: %d\n", lista[i].quantidade);
+        printf("Valor: %.2f\n", lista[i].valor);
+        printf("----------------------\n");
+    }
+}
+
+// Função que permite ao usuário pesquisar um produto pelo código
+void consultarProduto(Produto* lista, int tamanho) {
+    int codigo;
+    int encontrado = 0;
+    
+    printf("Digite o código do produto: ");
+    scanf("%d", &codigo);
+    
+    for (int i = 0; i < tamanho; i++) {
+        if (lista[i].codigo == codigo) {
+            printf("Produto encontrado:\n");
+            printf("Código: %d\n", lista[i].codigo);
+            printf("Descrição: %s\n", lista[i].descricao);
+            printf("Quantidade: %d\n", lista[i].quantidade);
+            printf("Valor: %.2f\n", lista[i].valor);
+            encontrado = 1;
+            break;
+        }
+    }
+    
+    if (!encontrado) {
+        printf("Produto não encontrado.\n");
+    }
+}
+
+// Função que permite ao usuário remover um produto do estoque
+void removerProduto(Produto** lista, int* tamanho) {
+    int codigo;
+    int encontrado = 0;
+    
+    printf("Digite o código do produto a ser removido: ");
+    scanf("%d", &codigo);
+    
+    for (int i = 0; i < *tamanho; i++) {
+        if ((*lista)[i].codigo == codigo) {
+            // Desloca os produtos à direita do produto a ser removido
+            for (int j = i; j < *tamanho - 1; j++) {
+                (*lista)[j] = (*lista)[j + 1];
+            }
+            
+            // Redimensiona a lista para acomodar a remoção
+            *lista = realloc(*lista, (*tamanho - 1) * sizeof(Produto));
+            
+            (*tamanho)--;
+            encontrado = 1;
+            printf("Produto removido com sucesso!\n");
+            break;
+        }
+    }
+    
+    if (!encontrado) {
+        printf("Produto não cadastrado.\n");
+    }
+}
+
+int main() {
+    Produto* lista;
+    int tamanho;
+    int opcao;
+    
+    inicializarLista(&lista, &tamanho);
+    
+    do {
+        printf("\n===== Controle de Estoque =====\n");
+        printf("1. Cadastrar produto\n");
+        printf("2. Consultar produto\n");
+        printf("3. Gerar relatório\n");
+        printf("4. Remover produto\n");
+        printf("0. Sair\n");
+        printf("Escolha uma opção: ");
+        scanf("%d", &opcao);
+        
+        switch (opcao) {
+            case 1:
+                adicionarProduto(&lista, &tamanho);
+                break;
+            case 2:
+                consultarProduto(lista, tamanho);
+                break;
+            case 3:
+                gerarRelatorio(lista, tamanho);
+                break;
+            case 4:
+                removerProduto(&lista, &tamanho);
+                break;
+            case 0:
+                printf("Saindo do programa...\n");
+                break;
+            default:
+                printf("Opção inválida.\n");
+                break;
+        }
+    } while (opcao != 0);
+    
+    // Libera a memória alocada para a lista
+    free(lista);
+    
+    return 0;
+}
